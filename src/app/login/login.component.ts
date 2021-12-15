@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
+import {Router} from '@angular/router';
+import {NavController} from '@ionic/angular';
+import {UserService} from "../service/user.service";
 
 @Component({
   selector: 'app-login',
@@ -16,11 +17,11 @@ import { NavController } from '@ionic/angular';
 export class LoginComponent implements OnInit {
   validationUserMessage = {
     email: [
-      { type: 'required', message: 'Please enter your Email' },
-      { type: 'pattern', message: 'The Email entered is Incorrect.Try again' },
+      {type: 'required', message: 'Please enter your Email'},
+      {type: 'pattern', message: 'The Email entered is Incorrect.Try again'},
     ],
     password: [
-      { type: 'required', message: 'please Enter your Password!' },
+      {type: 'required', message: 'please Enter your Password!'},
       {
         type: 'minlength',
         message: 'The Password must be at least 5 characters or more',
@@ -29,11 +30,14 @@ export class LoginComponent implements OnInit {
   };
 
   validationFormUser: FormGroup;
+
   constructor(
     public formbuider: FormBuilder,
     private router: Router,
-    private nav: NavController
-  ) {}
+    private nav: NavController,
+    private service: UserService
+  ) {
+  }
 
   ngOnInit() {
     this.validationFormUser = this.formbuider.group({
@@ -50,12 +54,22 @@ export class LoginComponent implements OnInit {
       ),
     });
   }
+
   LoginUser(value) {
     console.log('Am logged in');
+    const data = {
+      email: value.email,
+      password: value.password
+    };
+    this.service.login(data).subscribe(result => {
+      console.log('LOGIN_RESULT:>', result)
+    })
   }
+
   forgotPassword() {
     this.nav.navigateForward(['forgot-password']);
   }
+
   registerPage() {
     this.nav.navigateForward(['register']);
   }

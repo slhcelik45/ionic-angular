@@ -1,16 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import {Router} from '@angular/router';
 import {
   AlertController,
   LoadingController,
   NavController,
 } from '@ionic/angular';
+import {UserService} from "../service/user.service";
+
 
 @Component({
   selector: 'app-register',
@@ -19,33 +21,36 @@ import {
 })
 export class RegisterComponent implements OnInit {
   validationMessages = {
-    names: [{ type: 'required', message: 'Please Enter your Full Names' }],
-    phone: [{ type: 'required', message: 'Please Enter your Phone No.' }],
+    names: [{type: 'required', message: 'Please Enter your Full Names'}],
+    phone: [{type: 'required', message: 'Please Enter your Phone No.'}],
     email: [
-      { type: 'required', message: 'Enter your Email Adress' },
+      {type: 'required', message: 'Enter your Email Adress'},
       {
         type: 'pattern',
         meesage: 'Please the Email Entered is Incorrect. Try again..',
       },
     ],
     password: [
-      { type: 'required', message: 'password is required here' },
-      { type: 'minlength', message: 'Passwrd must be at least 6 character' },
+      {type: 'required', message: 'password is required here'},
+      {type: 'minlength', message: 'Passwrd must be at least 6 character'},
     ],
   };
 
   ValidationFormUSer: FormGroup;
   loading: any;
+
   constructor(
     private router: Router,
     private navCtr: NavController,
-    private formbuilder: FormBuilder,
+    private formBuilder: FormBuilder,
     public loadingCtrl: LoadingController,
-    private alertCtrl: AlertController
-  ) {}
+    private alertCtrl: AlertController,
+    private service: UserService
+  ) {
+  }
 
   ngOnInit() {
-    this.ValidationFormUSer = this.formbuilder.group({
+    this.ValidationFormUSer = this.formBuilder.group({
       names: new FormControl('', Validators.compose([Validators.required])),
 
       phone: new FormControl('', Validators.compose([Validators.required])),
@@ -63,6 +68,7 @@ export class RegisterComponent implements OnInit {
       ),
     });
   }
+
   registerUser(value) {
     this.showalert();
     try {
@@ -84,6 +90,21 @@ export class RegisterComponent implements OnInit {
           this.errorLoading(error.message);
         }
       ); */
+      const formData = {
+        email: value.email,
+        password: value.password
+      }
+      this.service.register(formData).subscribe(result => {
+        console.log('REGİSTER_SONUC:>', result)
+        if (result) {
+          this.loading.dismiss();
+          this.router.navigate(['login']);
+        } else {
+          this.loading.dismiss();
+          this.errorLoading(result?.error.error);
+        }
+      })
+
     } catch (erro) {
       console.log(erro);
     }
